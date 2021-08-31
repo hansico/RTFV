@@ -5,3 +5,18 @@ Main functionality will be to read messages containing (a) device's orientation 
  ![Screenshot](./docs/sc.png)
 
 See development branch to see the current progress.
+
+## Requirements
+- CMake to build
+- wxWidgets
+- OpenGL
+
+## Build
+Currently, only Debug build is "available" and tested (to run) only on the machine it is developed on (Manjaro Linux).
+```
+git clone
+mkdir build
+cd build
+cmake ..
+make
+```
