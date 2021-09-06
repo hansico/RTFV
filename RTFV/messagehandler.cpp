@@ -5,7 +5,7 @@
 MessageHandler::MessageHandler()
 {
   auto target = wxGetApp()._mainwindow->_serialpanel;
-  target->Bind(UPD_STATUS,&SerialPanel::UpdateMessage,target);
+  target->Bind(UPD_MSG,&SerialPanel::UpdateMessage,target);
   
   auto target_canv = wxGetApp()._mainwindow->_glpanel->_canvas;
   target_canv->Bind(ROT_GL,&AnonymousGLCanvas::Rotate,target_canv);
@@ -34,7 +34,7 @@ void MessageHandler::msgpipe(uint8_t message[32]){
   msg += std::to_string(rz)+'|';
 
   auto target = wxGetApp()._mainwindow->_serialpanel;
-  wxCommandEvent event_new(UPD_STATUS);
+  wxCommandEvent event_new(UPD_MSG);
   event_new.SetString(msg);
   wxQueueEvent(target,event_new.Clone());
 

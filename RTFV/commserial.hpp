@@ -19,24 +19,28 @@ class commSerial
 public:
   commSerial(SerialPanel *parent);
   ~commSerial();
-  void connect();
+  int connect(std::string baudstr);
+  int disconnect();
+  std::vector<std::string> availableBauds = {"9600", "38400", "57600", "115200"};
+  const char* statusconvert(int stcode);
 
 private:
   SerialPanel *_parent;
   bool open_port();
-  void disconnect();
-  void config();
+  bool config(std::string baudstr);
   void readserial(std::future<void> future);
+  bool connected = false;
 
   struct termios _settings;
+  bool setBaud(std::string baudstr);
+  enum _statusCodes {ST_UNRECOG_BAUD = -2, ST_NOT_AVLBL, ST_DISCONN, ST_CONN=1};
   int _dev;
   uint8_t _buff[32];
-  
+
   std::thread * _workerThr;
   std::promise<void> _exit_signal;
 };
 
-wxDEFINE_EVENT(UPD_STATUS,wxCommandEvent);
 wxDEFINE_EVENT(UPD_MSG,wxCommandEvent);
 
 #endif // COMMSERIAL_HPP

@@ -7,43 +7,45 @@ commSerial::commSerial(SerialPanel * parent)
   _parent = parent;
   _workerThr = NULL;
 
-  _parent->Bind(UPD_STATUS, &SerialPanel::UpdateStatus,_parent);
   _parent->Bind(UPD_MSG, &SerialPanel::UpdateMessage,_parent);
 }
 
 commSerial::~commSerial()
 { 
   disconnect();
-
-  delete _workerThr;
 }
 
-void commSerial::connect(){
-  wxCommandEvent event_new(UPD_STATUS);
+int commSerial::connect(std::string baudstr)
+{
   bool p = open_port();
   if(!p){
-    event_new.SetString("Not available");
-    wxQueueEvent(_parent, event_new.Clone());
-    return;
+    return ST_NOT_AVLBL;
   }
   
-  event_new.SetString("Connected");
-  wxQueueEvent(_parent, event_new.Clone());
-  
-  config();
+  if(!config(baudstr)){
+    return ST_UNRECOG_BAUD;
+  };
+  _exit_signal = std::promise<void>();
   std::future<void> future = _exit_signal.get_future();
   _workerThr = new std::thread(&commSerial::readserial,this,std::move(future));
+  connected = true;
+  return ST_CONN;
 }
 
-void commSerial::disconnect(){
+int commSerial::disconnect(){
   std::cout << "Disconnecting\n";
   
-  if(_dev >= 0){_exit_signal.set_value();std::cout << "Exit signaled\n";}
-  
+  if(connected){_exit_signal.set_value();std::cout << "Exit signaled\n";}
+
   if(_workerThr!=NULL){_workerThr->join();}
-  
+  delete _workerThr;
+  _workerThr = NULL;
+
   close(_dev);
-  std::cout << "_dev closed\n";  
+  std::cout << "_dev closed\n";
+
+  connected = false;
+  return ST_DISCONN;
 }
 
 void commSerial::readserial(std::future<void> future){
@@ -80,11 +82,13 @@ bool commSerial::open_port(){
   return true;
 }
 
-void commSerial::config(){
+bool commSerial::config(std::string baudstr){
   tcgetattr(_dev, &_settings);
-  cfsetispeed(&_settings, B115200);
-  cfsetospeed(&_settings, B115200);
-  
+
+  if(!setBaud(baudstr)){
+    return false;
+  }
+
   _settings.c_cflag |= ( CLOCAL | CREAD );
   _settings.c_oflag &= ~OPOST;
   _settings.c_oflag &= ~ONLCR;
@@ -99,4 +103,46 @@ void commSerial::config(){
   _settings.c_cc[VMIN] = 0;
   
   tcsetattr(_dev, TCSANOW, &_settings);
+  return true;
+}
+
+bool commSerial::setBaud(std::string baudstr)
+{
+  if(baudstr=="9600"){
+    cfsetispeed(&_settings, B9600);
+    cfsetospeed(&_settings, B9600);
+    return true;
+  }
+
+  if(baudstr=="38400"){
+    cfsetispeed(&_settings, B38400);
+    cfsetospeed(&_settings, B38400);
+    return true;
+  }
+
+  if(baudstr=="57600"){
+    cfsetispeed(&_settings, B57600);
+    cfsetospeed(&_settings, B57600);
+    return true;
+  }
+
+  if(baudstr=="115200"){
+    cfsetispeed(&_settings, B115200);
+    cfsetospeed(&_settings, B115200);
+    return true;
+  }
+
+  return false;
+}
+
+const char * commSerial::statusconvert(int stcode)
+{
+  switch(_statusCodes(stcode))
+  {
+    case ST_UNRECOG_BAUD: return "Unrecognized baud";
+    case ST_NOT_AVLBL:    return "Device not available";
+    case ST_DISCONN:      return "Disconnected";
+    case ST_CONN:         return "Connected";
+    default:              return "Unexpected status code";
+  }
 }
