@@ -3,6 +3,7 @@
 
 #include <wx/wx.h>
 #include <wx/panel.h>
+#include <wx/statline.h>
 #include <commserial.hpp>
 
 class SerialPanel : public wxPanel
