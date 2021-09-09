@@ -5,7 +5,7 @@
 SerialPanel::SerialPanel(wxPanel * parent)
   : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(240,250), wxBORDER_SUNKEN)
 {
-  _serial = new commSerial(this);
+  _serial = new commSerial();
   wxArrayString baudoptions = getBaudOptions();
   _portName = new wxStaticText(this, -1, wxT("ttyUSB0"), wxPoint(5,10));
   _status = new wxStaticText(this, -1, wxT("Status: N/A"), wxPoint(5,30));
@@ -29,7 +29,7 @@ void SerialPanel::OnConnect(wxCommandEvent & WXUNUSED(event))
   int st = -128;
 
   if(_serial==NULL){
-    _serial = new commSerial(this);
+    _serial = new commSerial();
     st = _serial->connect(_baudSelectBox->GetString(_baudSelectBox->GetSelection()).ToStdString());
   }else{
     st = _serial->connect(_baudSelectBox->GetString(_baudSelectBox->GetSelection()).ToStdString());

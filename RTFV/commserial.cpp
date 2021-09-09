@@ -2,12 +2,9 @@
 #include <serialpanel.hpp>
 #include <main.hpp>
 
-commSerial::commSerial(SerialPanel * parent)
+commSerial::commSerial()
 {
-  _parent = parent;
   _workerThr = NULL;
-
-  _parent->Bind(UPD_MSG, &SerialPanel::UpdateMessage,_parent);
 }
 
 commSerial::~commSerial()

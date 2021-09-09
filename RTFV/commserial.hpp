@@ -17,7 +17,7 @@ class SerialPanel;
 class commSerial
 {
 public:
-  commSerial(SerialPanel *parent);
+  commSerial();
   ~commSerial();
   int connect(std::string baudstr);
   int disconnect();
@@ -25,7 +25,6 @@ public:
   const char* statusconvert(int stcode);
 
 private:
-  SerialPanel *_parent;
   bool open_port();
   bool config(std::string baudstr);
   void readserial(std::future<void> future);
@@ -40,7 +39,5 @@ private:
   std::thread * _workerThr;
   std::promise<void> _exit_signal;
 };
-
-wxDEFINE_EVENT(UPD_MSG,wxCommandEvent);
 
 #endif // COMMSERIAL_HPP

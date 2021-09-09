@@ -23,4 +23,5 @@ union bfloat{
   float f;
 };
 wxDEFINE_EVENT(ROT_GL,wxCommandEvent);
+wxDEFINE_EVENT(UPD_MSG,wxCommandEvent);
 #endif // MESSAGEHANDLER_HPP
